@@ -1,24 +1,3 @@
-BEGIN;
-
-DELETE FROM menu_items
-WHERE category = 'steaks'
-  AND slug NOT IN (
-    'beef-medallions',
-    'beef-tenderloin-crostini',
-    'garlic-butter-steak-tips-rigatoni',
-    'herbert-tomahawk-steak',
-    'lamb-chops',
-    'mushroomed-sirloin-and-chips',
-    'ribeye-steak',
-    'roast-beef-fillet',
-    'saucy-beef-chow-ho-fun',
-    'steak-and-mushroom-sauce',
-    'stuffed-beef-rolls',
-    'tomahawk-steak',
-    'tomahawk-chimichurri-hasselback-potatoes',
-    'tomahawk-steak-classic'
-  );
-
 INSERT INTO menu_items (
   slug,
   name,
@@ -197,4 +176,38 @@ DO UPDATE SET
   prep_time_minutes = EXCLUDED.prep_time_minutes,
   updated_at = NOW();
 
-COMMIT;
+
+INSERT INTO menu_item_option_groups (menu_item_id, option_group_id, sort_order)
+SELECT m.id, g.id, l.sort_order
+FROM (VALUES
+  ('beef-medallions', 'doneness', 1),
+  ('beef-medallions', 'side', 2),
+  ('beef-medallions', 'sauce', 3),
+  ('ribeye-steak', 'doneness', 1),
+  ('ribeye-steak', 'side', 2),
+  ('ribeye-steak', 'sauce', 3),
+  ('herbert-tomahawk-steak', 'doneness', 1),
+  ('herbert-tomahawk-steak', 'side', 2),
+  ('herbert-tomahawk-steak', 'sauce', 3),
+  ('tomahawk-steak', 'doneness', 1),
+  ('tomahawk-steak', 'side', 2),
+  ('tomahawk-steak', 'sauce', 3),
+  ('tomahawk-steak-classic', 'doneness', 1),
+  ('tomahawk-steak-classic', 'side', 2),
+  ('tomahawk-steak-classic', 'sauce', 3),
+  ('roast-beef-fillet', 'doneness', 1),
+  ('roast-beef-fillet', 'side', 2),
+  ('roast-beef-fillet', 'sauce', 3),
+  ('lamb-chops', 'doneness', 1),
+  ('lamb-chops', 'side', 2),
+  ('lamb-chops', 'sauce', 3),
+  ('mushroomed-sirloin-and-chips', 'doneness', 1),
+  ('mushroomed-sirloin-and-chips', 'side-chips-included', 2),
+  ('steak-and-mushroom-sauce', 'doneness', 1),
+  ('steak-and-mushroom-sauce', 'side', 2),
+  ('stuffed-beef-rolls', 'side', 1),
+  ('tomahawk-chimichurri-hasselback-potatoes', 'doneness', 1)
+) AS l (item_slug, group_code, sort_order)
+JOIN menu_items m ON m.slug = l.item_slug
+JOIN option_groups g ON g.code = l.group_code
+ON CONFLICT DO NOTHING;
