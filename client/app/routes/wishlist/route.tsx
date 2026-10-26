@@ -1,32 +1,16 @@
 import { Link } from "react-router";
-import { Heart,ShoppingBag,ShoppingCart,Trash2 } from "lucide-react";
+import { Heart,ShoppingBag,ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "~/components/ui/button";
-import { useCartStore } from "~/store/cartStore";
-import { useWishlistStore } from "~/store/wishlistStore";
+
+import { useWishlistStore,type WishlistItem } from "~/store/wishlistStore";
 
 export default function WishlistPage() {
 	const wishlistItems=useWishlistStore((state) => state.items);
 	const removeWishlistItem=useWishlistStore((state) => state.removeItem);
 
-	const addCartItem=useCartStore((state) => state.addItem);
-
 	const hasItems=wishlistItems.length>0;
 
-	function addToCart(item: (typeof wishlistItems)[number]) {
-		addCartItem({
-			id: item.id,
-			productId: item.id,
-			name: item.name,
-			price: item.priceCents,
-			image: item.imageUrl,
-			quantity: 1,
-		});
-
-		toast.success(`${item.name} added to cart`);
-	}
-
-	function removeFromWishlist(item: (typeof wishlistItems)[number]) {
+	function removeFromWishlist(item: WishlistItem) {
 		removeWishlistItem(item.id);
 		toast.success(`${item.name} removed from wishlist`);
 	}
@@ -65,8 +49,8 @@ export default function WishlistPage() {
 					<h2 className="mt-5 text-xl font-bold">Your wishlist is empty</h2>
 
 					<p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-						Save meals you love, then come back when you are ready to add them
-						to your cart.
+						Save meals you love, then come back when you are ready to order
+						them.
 					</p>
 
 					<Link
@@ -110,22 +94,14 @@ export default function WishlistPage() {
 									</span>
 								</div>
 
-								<div className="mt-5 flex flex-col gap-3 sm:flex-row">
+								<div className="mt-5">
 									<Link
 										to={`/${item.category}/${item.slug}`}
-										className="inline-flex flex-1 items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
-									>
-										View dish
-									</Link>
-
-									<Button
-										type="button"
-										onClick={() => addToCart(item)}
-										className="flex-1"
+										className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
 									>
 										<ShoppingCart className="size-4" />
 										Choose options
-									</Button>
+									</Link>
 								</div>
 							</div>
 						</article>
