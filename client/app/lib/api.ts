@@ -320,4 +320,30 @@ export async function removeWishlistItemRequest(
 	});
 }
 
+export type AdminOrder=OrderDetail&{
+	customerEmail: string;
+	nextStatuses: string[];
+};
+
+export async function getAdminOrders(): Promise<AdminOrder[]> {
+	const response=await request<{ data: AdminOrder[] }>("/api/admin/orders");
+
+	return response.data;
+}
+
+export async function updateOrderStatusRequest(
+	orderId: string,
+	status: string
+): Promise<{ status: string; nextStatuses: string[] }> {
+	const response=await request<{
+		order: { status: string; nextStatuses: string[] };
+	}>(`/api/admin/orders/${encodeURIComponent(orderId)}/status`,{
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ status }),
+	});
+
+	return response.order;
+}
+
 export { request };

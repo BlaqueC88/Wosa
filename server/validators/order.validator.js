@@ -51,3 +51,16 @@ export const createOrderSchema=Joi.object({
 
 	items: Joi.array().items(orderItemSchema).min(1).max(50).required(),
 });
+
+export const updateOrderStatusSchema=Joi.object({
+	status: Joi.string()
+		.valid(
+			"paid",
+			"preparing",
+			"out_for_delivery",
+			"ready_for_collection",
+			"completed",
+			"cancelled"
+		)
+		.required(),
+});
