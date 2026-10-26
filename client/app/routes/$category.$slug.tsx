@@ -1,5 +1,6 @@
 import { useEffect,useMemo,useState } from "react";
 import { Link,useParams } from "react-router";
+import { categoryInfo } from "~/lib/categories";
 import { toast } from "sonner";
 
 import {
@@ -17,6 +18,7 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import {
 	getMenuItem,
+	isMenuCategory,
 	type MenuItemDetail,
 	type OptionChoice,
 	type OptionGroup,
@@ -41,8 +43,8 @@ function getDefaultChoices(groups: OptionGroup[]) {
 	return defaults;
 }
 
-export default function SteakDetailPage() {
-	const { slug }=useParams<{ slug: string }>();
+export default function DishDetailPage() {
+	const { category,slug }=useParams();
 
 	const [steak,setSteak]=useState<MenuItemDetail|null>(null);
 	const [isLoading,setIsLoading]=useState(true);
@@ -66,9 +68,9 @@ export default function SteakDetailPage() {
 		let isCurrent=true;
 
 		async function loadSteak() {
-			if(!slug) {
+			if(!slug||!isMenuCategory(category)) {
 				if(isCurrent) {
-					setError("No steak was selected.");
+					setError("This dish could not be found.");
 					setIsLoading(false);
 				}
 
@@ -81,7 +83,7 @@ export default function SteakDetailPage() {
 				setQuantity(1);
 				setSpecialInstructions("");
 
-				const item=await getMenuItem("steaks",slug);
+				const item=await getMenuItem(category,slug);
 
 				if(isCurrent) {
 					setSteak(item);
@@ -107,7 +109,7 @@ export default function SteakDetailPage() {
 		return () => {
 			isCurrent=false;
 		};
-	},[slug]);
+	},[category,slug]);
 
 	const selectedOptionsList=useMemo(() => {
 		if(!steak) {
@@ -216,6 +218,11 @@ export default function SteakDetailPage() {
 		toast.success(`${steak.name} added to cart`);
 	}
 
+	const backPath=isMenuCategory(category)? `/${category}`:"/";
+	const backLabel=isMenuCategory(category)
+		? categoryInfo[category].label
+		:"the menu";
+
 	if(isLoading) {
 		return <SteakDetailSkeleton />;
 	}
@@ -235,14 +242,14 @@ export default function SteakDetailPage() {
 					<h1 className="text-2xl font-bold">Unable to load this dish</h1>
 
 					<p className="mt-3 text-sm text-muted-foreground">
-						{error||"The requested steak could not be found."}
+						{error||"The requested dish could not be found."}
 					</p>
 
 					<Link
 						to="/steaks"
 						className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
 					>
-						Return to steak menu
+						Return to {backLabel}
 					</Link>
 				</section>
 			</main>
@@ -252,11 +259,11 @@ export default function SteakDetailPage() {
 	return (
 		<main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<Link
-				to="/steaks"
+				to={backPath}
 				className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
 			>
 				<ArrowLeft className="size-4" />
-				Back to steaks
+				Back to {backLabel}
 			</Link>
 
 			<section className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:gap-12">

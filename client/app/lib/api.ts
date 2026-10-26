@@ -1,12 +1,21 @@
 const API_URL=import.meta.env.VITE_API_URL??"http://localhost:5000";
 
-export type MenuCategory=
-	|"steaks"
-	|"chicken"
-	|"fish"
-	|"surfnturf"
-	|"salads"
-	|"desserts";
+export const menuCategories=[
+	"steaks",
+	"chicken",
+	"fish",
+	"surfnturf",
+	"salads",
+	"desserts",
+] as const;
+
+export type MenuCategory=(typeof menuCategories)[number];
+
+export function isMenuCategory(
+	value: string|undefined
+): value is MenuCategory {
+	return menuCategories.some((category) => category===value);
+}
 
 export type MenuItem={
 	id: string;

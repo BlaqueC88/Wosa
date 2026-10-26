@@ -124,7 +124,7 @@ export default function WishlistPage() {
 										className="flex-1"
 									>
 										<ShoppingCart className="size-4" />
-										Add to cart
+										Choose options
 									</Button>
 								</div>
 							</div>
