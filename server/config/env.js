@@ -1,64 +1,66 @@
 import "dotenv/config";
 import Joi from "joi";
 
-const schema = Joi.object({
-  NODE_ENV: Joi.string()
-    .valid("development", "test", "production")
-    .default("development"),
+const schema=Joi.object({
+	NODE_ENV: Joi.string()
+		.valid("development","test","production")
+		.default("development"),
 
-  PORT: Joi.number()
-    .port()
-    .default(5000),
+	PORT: Joi.number()
+		.port()
+		.default(5000),
 
-  DB_USER: Joi.string()
-    .trim()
-    .required(),
+	DB_USER: Joi.string()
+		.trim()
+		.required(),
 
-  DB_PASSWORD: Joi.string()
-    .required(),
+	DB_PASSWORD: Joi.string()
+		.required(),
 
-  DB_NAME: Joi.string()
-    .trim()
-    .required(),
+	DB_NAME: Joi.string()
+		.trim()
+		.required(),
 
-  DB_SOCKET_DIR: Joi.string()
-    .pattern(/^\//)
-    .required(),
+	DB_SOCKET_DIR: Joi.string()
+		.pattern(/^\//)
+		.required(),
 
-  CLIENT_ORIGIN: Joi.string()
-    .uri({ scheme: ["http", "https"] })
-    .required(),
+	CLIENT_ORIGIN: Joi.string()
+		.uri({ scheme: ["http","https"] })
+		.required(),
 
-  JWT_SECRET: Joi.string()
-    .min(32)
-    .required(),
+	JWT_SECRET: Joi.string()
+		.min(32)
+		.required(),
 
-  JWT_EXPIRES_IN: Joi.string()
-    .default("7d"),
+	JWT_EXPIRES_IN: Joi.string()
+		.default("7d"),
 
-  JWT_ISSUER: Joi.string()
-    .trim()
-    .default("gabz_meals-api"),
+	JWT_ISSUER: Joi.string()
+		.trim()
+		.default("gabz_meals-api"),
 
-  JWT_AUDIENCE: Joi.string()
-    .trim()
-    .default("gabz_meals-client"),
+	JWT_AUDIENCE: Joi.string()
+		.trim()
+		.default("gabz_meals-client"),
 
-  COOKIE_NAME: Joi.string()
-    .pattern(/^[A-Za-z0-9_-]+$/)
-    .default("gabz_meals_session"),
+	COOKIE_NAME: Joi.string()
+		.pattern(/^[A-Za-z0-9_-]+$/)
+		.default("gabz_meals_session"),
+
+	DELIVERY_FEE_CENTS: Joi.number().integer().min(0).default(3500),
 }).unknown(true);
 
-const { error, value } = schema.validate(process.env, {
-  abortEarly: false,
+const { error,value }=schema.validate(process.env,{
+	abortEarly: false,
 });
 
-if (error) {
-  throw new Error(
-    `Invalid environment configuration: ${error.details
-      .map((detail) => detail.message)
-      .join(", ")}`
-  );
+if(error) {
+	throw new Error(
+		`Invalid environment configuration: ${error.details
+			.map((detail) => detail.message)
+			.join(", ")}`
+	);
 }
 
-export const env = value;
+export const env=value;

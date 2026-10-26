@@ -210,4 +210,85 @@ export async function getCurrentUser(): Promise<AuthUser|null> {
 	}
 }
 
+export type FulfilmentType="delivery"|"collection";
+
+export type CreateOrderInput={
+	fulfilmentType: FulfilmentType;
+	contactName: string;
+	contactPhone: string;
+	deliveryAddress?: string;
+	deliverySuburb?: string;
+	deliveryCity?: string;
+	deliveryNotes?: string;
+	items: {
+		productId: string;
+		quantity: number;
+		selectedOptions: { groupId: string; choiceId: string }[];
+		specialInstructions?: string;
+	}[];
+};
+
+export type OrderSummary={
+	id: string;
+	orderNumber: number;
+	status: string;
+	fulfilmentType: FulfilmentType;
+	subtotalCents: number;
+	deliveryFeeCents: number;
+	totalCents: number;
+	createdAt: string;
+};
+
+export type OrderLine={
+	name: string;
+	imageUrl: string|null;
+	unitPriceCents: number;
+	quantity: number;
+	lineTotalCents: number;
+	selectedOptions: {
+		groupName: string;
+		choiceName: string;
+		priceAdjustmentCents: number;
+	}[];
+	specialInstructions: string|null;
+};
+
+export type OrderDetail=OrderSummary&{
+	contactName: string;
+	contactPhone: string;
+	deliveryAddress: string|null;
+	deliverySuburb: string|null;
+	deliveryCity: string|null;
+	deliveryNotes: string|null;
+	items: OrderLine[];
+};
+
+export async function createOrderRequest(
+	input: CreateOrderInput
+): Promise<OrderSummary> {
+	const response=await request<{ order: OrderSummary }>("/api/orders",{
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(input),
+	});
+
+	return response.order;
+}
+
+export async function getOrderRequest(orderId: string): Promise<OrderDetail> {
+	const response=await request<{ order: OrderDetail }>(
+		`/api/orders/${encodeURIComponent(orderId)}`
+	);
+
+	return response.order;
+}
+
+export async function getDeliveryFee(): Promise<number> {
+	const response=await request<{ deliveryFeeCents: number }>(
+		"/api/orders/delivery-fee"
+	);
+
+	return response.deliveryFeeCents;
+}
+
 export { request };
