@@ -10,6 +10,8 @@ import {
 	type SignUpInput
 } from "~/lib/api";
 
+import { useCartStore } from "~/store/cartStore";
+
 export type { AuthUser,UserRole };
 
 type AuthStore={
@@ -69,6 +71,7 @@ export const useAuthStore=create<AuthStore>()((set) => ({
 			console.error("Sign out request failed:",error);
 		} finally {
 			set({ user: null });
+			useCartStore.getState().clearCart();
 		}
 	},
 }));

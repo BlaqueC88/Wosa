@@ -291,4 +291,33 @@ export async function getDeliveryFee(): Promise<number> {
 	return response.deliveryFeeCents;
 }
 
+export type WishlistDish={
+	id: string;
+	slug: string;
+	name: string;
+	priceCents: number;
+	imageUrl: string;
+	category: string;
+};
+
+export async function getWishlistRequest(): Promise<WishlistDish[]> {
+	const response=await request<{ data: WishlistDish[] }>("/api/wishlist");
+
+	return response.data;
+}
+
+export async function addWishlistItemRequest(menuItemId: string): Promise<void> {
+	await request<null>(`/api/wishlist/${encodeURIComponent(menuItemId)}`,{
+		method: "PUT",
+	});
+}
+
+export async function removeWishlistItemRequest(
+	menuItemId: string
+): Promise<void> {
+	await request<null>(`/api/wishlist/${encodeURIComponent(menuItemId)}`,{
+		method: "DELETE",
+	});
+}
+
 export { request };

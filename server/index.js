@@ -15,6 +15,7 @@ import authRouter from "./routes/auth.routes.js";
 import menuRouter from "./routes/menu.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import ordersRouter from "./routes/orders.routes.js";
+import wishlistRouter from "./routes/wishlist.routes.js";
 
 const app=express();
 const PgSessionStore=connectPgSimple(session);
@@ -143,6 +144,8 @@ app.use("/api/menu",menuRouter);
 app.use("/api/admin",adminRouter);
 
 app.use("/api/orders",ordersRouter);
+
+app.use("/api/wishlist",wishlistRouter);
 
 app.use((req,res) => {
 	return res.status(404).json({

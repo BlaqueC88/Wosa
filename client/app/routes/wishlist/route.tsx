@@ -1,18 +1,39 @@
-import { Link } from "react-router";
+import { Link,Navigate } from "react-router";
 import { Heart,ShoppingBag,ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 import { useWishlistStore,type WishlistItem } from "~/store/wishlistStore";
+import { useAuthStore } from "~/store/authStore";
 
 export default function WishlistPage() {
 	const wishlistItems=useWishlistStore((state) => state.items);
 	const removeWishlistItem=useWishlistStore((state) => state.removeItem);
+	const user=useAuthStore((state) => state.user);
+	const isAuthLoading=useAuthStore((state) => state.isLoading);
 
 	const hasItems=wishlistItems.length>0;
 
 	function removeFromWishlist(item: WishlistItem) {
 		removeWishlistItem(item.id);
 		toast.success(`${item.name} removed from wishlist`);
+	}
+
+	if(isAuthLoading) {
+		return (
+			<main className="mx-auto max-w-7xl px-4 py-10">
+				<p className="text-sm text-muted-foreground">Loading your wishlist...</p>
+			</main>
+		);
+	}
+
+	if(!user) {
+		return (
+			<Navigate
+				to="/auth/signin"
+				replace
+				state={{ from: { pathname: "/wishlist" } }}
+			/>
+		);
 	}
 
 	return (

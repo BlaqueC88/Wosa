@@ -1,77 +1,89 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { toast } from "sonner";
 
-export type WishlistItem = {
-  id: string;
-  slug: string;
-  name: string;
-  priceCents: number;
-  imageUrl: string;
-  category: string;
+import {
+	addWishlistItemRequest,
+	getWishlistRequest,
+	removeWishlistItemRequest,
+} from "~/lib/api";
+import { useAuthStore } from "~/store/authStore";
+
+export type WishlistItem={
+	id: string;
+	slug: string;
+	name: string;
+	priceCents: number;
+	imageUrl: string;
+	category: string;
 };
 
-type WishlistStore = {
-  items: WishlistItem[];
-  addItem: (item: WishlistItem) => void;
-  removeItem: (id: string) => void;
-  toggleItem: (item: WishlistItem) => void;
-  clearWishlist: () => void;
-  isWishlisted: (id: string) => boolean;
+type WishlistStore={
+	items: WishlistItem[];
+	loadWishlist: () => Promise<void>;
+	resetWishlist: () => void;
+	addItem: (item: WishlistItem) => void;
+	removeItem: (id: string) => void;
+	toggleItem: (item: WishlistItem) => void;
+	isWishlisted: (id: string) => boolean;
 };
 
-export const useWishlistStore = create<WishlistStore>()(
-  persist(
-    (set, get) => ({
-      items: [],
+export const useWishlistStore=create<WishlistStore>()((set,get) => ({
+	items: [],
 
-      addItem: (item) => {
-        const alreadySaved = get().items.some(
-          (savedItem) => savedItem.id === item.id
-        );
+	loadWishlist: async () => {
+		try {
+			const items=await getWishlistRequest();
 
-        if (alreadySaved) {
-          return;
-        }
+			set({ items });
+		} catch(error) {
+			console.error("Could not load the wishlist:",error);
+		}
+	},
 
-        set((state) => ({
-          items: [...state.items, item],
-        }));
-      },
+	resetWishlist: () => {
+		set({ items: [] });
+	},
 
-      removeItem: (id) => {
-        set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
-        }));
-      },
+	addItem: (item) => {
+		if(get().items.some((saved) => saved.id===item.id)) {
+			return;
+		}
 
-      toggleItem: (item) => {
-        const alreadySaved = get().items.some(
-          (savedItem) => savedItem.id === item.id
-        );
+		if(!useAuthStore.getState().user) {
+			toast.info("Sign in to save dishes to your wishlist.");
+			return;
+		}
 
-        if (alreadySaved) {
-          set((state) => ({
-            items: state.items.filter((savedItem) => savedItem.id !== item.id),
-          }));
+		const previous=get().items;
 
-          return;
-        }
+		set({ items: [item,...previous] });
 
-        set((state) => ({
-          items: [...state.items, item],
-        }));
-      },
+		addWishlistItemRequest(item.id).catch(() => {
+			set({ items: previous });
+			toast.error("Could not save this dish. Please try again.");
+		});
+	},
 
-      clearWishlist: () => {
-        set({ items: [] });
-      },
+	removeItem: (id) => {
+		const previous=get().items;
 
-      isWishlisted: (id) => {
-        return get().items.some((item) => item.id === id);
-      },
-    }),
-    {
-      name: "gabz-meals-wishlist",
-    }
-  )
-);
+		set({ items: previous.filter((item) => item.id!==id) });
+
+		removeWishlistItemRequest(id).catch(() => {
+			set({ items: previous });
+			toast.error("Could not remove this dish. Please try again.");
+		});
+	},
+
+	toggleItem: (item) => {
+		if(get().items.some((saved) => saved.id===item.id)) {
+			get().removeItem(item.id);
+		} else {
+			get().addItem(item);
+		}
+	},
+
+	isWishlisted: (id) => {
+		return get().items.some((item) => item.id===id);
+	},
+}));

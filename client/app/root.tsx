@@ -11,8 +11,11 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 import { StrictMode,useEffect } from "react";
-import { useAuthStore } from "./store/authStore";
 import { QueryClient,QueryClientProvider } from "@tanstack/react-query";
+
+import { useAuthStore } from "./store/authStore";
+import { useWishlistStore } from "./store/wishlistStore";
+
 import { Toaster } from "sonner";
 import { Navbar } from "./components/navbar";
 
@@ -62,9 +65,21 @@ const queryClient=new QueryClient({
 export default function App() {
 	const loadSession=useAuthStore((state) => state.loadSession);
 
+	const userId=useAuthStore((state) => state.user?.id);
+	const loadWishlist=useWishlistStore((state) => state.loadWishlist);
+	const resetWishlist=useWishlistStore((state) => state.resetWishlist);
+
 	useEffect(() => {
 		void loadSession();
 	},[loadSession]);
+
+	useEffect(() => {
+		if(userId) {
+			void loadWishlist();
+		} else {
+			resetWishlist();
+		}
+	},[userId,loadWishlist,resetWishlist]);
 
 	return (
 		<StrictMode>
