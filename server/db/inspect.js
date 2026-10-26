@@ -58,6 +58,18 @@ try {
 	   GROUP BY m.slug
 	   ORDER BY m.slug`
 	);
+
+	await show(
+		"other categories",
+		`SELECT m.category,
+          COUNT(DISTINCT m.id) AS dishes,
+          COUNT(mog.option_group_id) AS attachments
+   FROM menu_items m
+   LEFT JOIN menu_item_option_groups mog ON mog.menu_item_id = m.id
+   WHERE m.category <> 'steaks'
+   GROUP BY m.category
+   ORDER BY m.category`
+	);
 } finally {
 	await pool.end();
 }
