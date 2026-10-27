@@ -6,48 +6,27 @@ const schema=Joi.object({
 		.valid("development","test","production")
 		.default("development"),
 
-	PORT: Joi.number()
-		.port()
-		.default(5000),
+	PORT: Joi.number().port().default(5000),
 
-	DB_USER: Joi.string()
-		.trim()
-		.required(),
-
-	DB_PASSWORD: Joi.string()
-		.required(),
-
-	DB_NAME: Joi.string()
-		.trim()
-		.required(),
-
-	DB_SOCKET_DIR: Joi.string()
-		.pattern(/^\//)
-		.required(),
+	DB_NAME: Joi.string().trim().required(),
+	DB_USER: Joi.string().trim().required(),
+	DB_PASSWORD: Joi.string().allow("").default(""),
+	DB_HOST: Joi.string().trim().default("localhost"),
+	DB_PORT: Joi.number().port().default(5432),
+	DB_SOCKET_DIR: Joi.string().pattern(/^\//),
 
 	CLIENT_ORIGIN: Joi.string()
 		.uri({ scheme: ["http","https"] })
 		.required(),
 
-	JWT_SECRET: Joi.string()
-		.min(32)
-		.required(),
-
-	JWT_EXPIRES_IN: Joi.string()
-		.default("7d"),
-
-	JWT_ISSUER: Joi.string()
-		.trim()
-		.default("wosa-api"),
-
-	JWT_AUDIENCE: Joi.string()
-		.trim()
-		.default("wosa-client"),
-
-	COOKIE_NAME: Joi.string()
+	SESSION_SECRET: Joi.string().min(32).required(),
+	SESSION_NAME: Joi.string()
 		.pattern(/^[A-Za-z0-9_-]+$/)
 		.default("wosa_session"),
+	COOKIE_SECURE: Joi.boolean().default(false),
+	COOKIE_SAME_SITE: Joi.string().valid("lax","strict","none").default("lax"),
 
+	BCRYPT_ROUNDS: Joi.number().integer().min(4).max(15).default(12),
 	DELIVERY_FEE_CENTS: Joi.number().integer().min(0).default(3500),
 }).unknown(true);
 
