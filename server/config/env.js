@@ -38,15 +38,15 @@ const schema=Joi.object({
 
 	JWT_ISSUER: Joi.string()
 		.trim()
-		.default("gabz_meals-api"),
+		.default("wosa-api"),
 
 	JWT_AUDIENCE: Joi.string()
 		.trim()
-		.default("gabz_meals-client"),
+		.default("wosa-client"),
 
 	COOKIE_NAME: Joi.string()
 		.pattern(/^[A-Za-z0-9_-]+$/)
-		.default("gabz_meals_session"),
+		.default("wosa_session"),
 
 	DELIVERY_FEE_CENTS: Joi.number().integer().min(0).default(3500),
 }).unknown(true);

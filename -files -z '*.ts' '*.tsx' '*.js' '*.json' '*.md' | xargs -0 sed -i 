@@ -1,0 +1,23 @@
+[35mclient/app/components/navbar.tsx[m[36m:[m[32m39[m[36m:[m            [1;31mGABZ[m MEALS
+[35mclient/app/routes/auth.signin.tsx[m[36m:[m[32m66[m[36m:[m					[1;31mGABZ[m MEALS
+[35mclient/app/routes/auth.signin.tsx[m[36m:[m[32m172[m[36m:[m					New to [1;31mGabz[m Meals?{" "}
+[35mclient/app/routes/auth.signup.tsx[m[36m:[m[32m65[m[36m:[m						[1;31mGABZ[m MEALS
+[35mclient/app/routes/auth.signup.tsx[m[36m:[m[32m70[m[36m:[m							Join [1;31mGabz[m Meals
+[35mclient/app/routes/auth.signup.tsx[m[36m:[m[32m99[m[36m:[m							Enter your details to create your [1;31mGabz[m Meals account.
+[35mclient/app/store/cartStore.ts[m[36m:[m[32m189[m[36m:[m      name: "[1;31mgabz[m-meals-cart",
+[35mclient/package-lock.json[m[36m:[m[32m2[m[36m:[m	"name": "[1;31mzinkuni[m-wears-client",
+[35mclient/package-lock.json[m[36m:[m[32m7[m[36m:[m			"name": "[1;31mzinkuni[m-wears-client",
+[35mclient/package.json[m[36m:[m[32m2[m[36m:[m	"name": "[1;31mzinkuni[m-wears-client",
+[35mserver/config/env.js[m[36m:[m[32m41[m[36m:[m		.default("[1;31mgabz[m_meals-api"),
+[35mserver/config/env.js[m[36m:[m[32m45[m[36m:[m		.default("[1;31mgabz[m_meals-client"),
+[35mserver/config/env.js[m[36m:[m[32m49[m[36m:[m		.default("[1;31mgabz[m_meals_session"),
+[35mserver/controllers/auth.controller.js[m[36m:[m[32m166[m[36m:[m        process.env.SESSION_NAME || "[1;31mgabz[m_meals_session",
+[35mserver/index.js[m[36m:[m[32m89[m[36m:[m	[1;31mgabz[m_meals_session=<session id>
+[35mserver/index.js[m[36m:[m[32m106[m[36m:[m		name: process.env.SESSION_NAME||"[1;31mgabz[m_meals_session",
+[35mserver/index.js[m[36m:[m[32m132[m[36m:[m			message: "[1;31mGabz[m Meals API is running.",
+[35mserver/index.js[m[36m:[m[32m157[m[36m:[m	console.error("\n========== [1;31mGABZ[m MEALS API ERROR ==========");
+[35mserver/index.js[m[36m:[m[32m180[m[36m:[m		`[1;31mGabz[m Meals API running on http://localhost:${env.PORT}`
+[35mserver/node_modules/.package-lock.json[m[36m:[m[32m2[m[36m:[m	"name": "[1;31mzinkuni[m-server",
+[35mserver/package-lock.json[m[36m:[m[32m2[m[36m:[m	"name": "[1;31mzinkuni[m-server",
+[35mserver/package-lock.json[m[36m:[m[32m8[m[36m:[m			"name": "[1;31mzinkuni[m-server",
+[35mserver/package.json[m[36m:[m[32m2[m[36m:[m	"name": "[1;31mzinkuni[m-server",

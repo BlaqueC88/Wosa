@@ -163,7 +163,7 @@ export async function signout(req, res, next) {
       }
 
       res.clearCookie(
-        process.env.SESSION_NAME || "gabz_meals_session",
+        process.env.SESSION_NAME || "wosa_session",
         {
           httpOnly: true,
           secure: process.env.COOKIE_SECURE === "true",

@@ -36,7 +36,7 @@ export function Navbar() {
             end
             className="shrink-0 text-lg font-black tracking-tight text-foreground"
           >
-            GABZ MEALS
+            WOSA
           </NavLink>
 
           <div className="hidden w-full max-w-md md:block">

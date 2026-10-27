@@ -86,7 +86,7 @@ app.use(cookieParser());
 	Session data is stored in PostgreSQL's public.session table.
 
 	The browser receives only a signed, HttpOnly session-id cookie:
-	gabz_meals_session=<session id>
+	wosa_session=<session id>
 
 	The cookie does NOT contain:
 	- user details
@@ -103,7 +103,7 @@ app.use(
 			pruneSessionInterval: 60*15,
 		}),
 
-		name: process.env.SESSION_NAME||"gabz_meals_session",
+		name: process.env.SESSION_NAME||"wosa_session",
 
 		secret: process.env.SESSION_SECRET,
 
@@ -129,7 +129,7 @@ app.get("/api/health",async (_req,res,next) => {
 		);
 
 		return res.status(200).json({
-			message: "Gabz Meals API is running.",
+			message: "Wosa API is running.",
 			database: result.rows[0],
 		});
 	} catch(error) {
@@ -154,7 +154,7 @@ app.use((req,res) => {
 });
 
 app.use((error,req,res,_next) => {
-	console.error("\n========== GABZ MEALS API ERROR ==========");
+	console.error("\n========== WOSA API ERROR ==========");
 	console.error("Request:",`${req.method} ${req.originalUrl}`);
 	console.error("Message:",error.message);
 	console.error("Code:",error.code??"none");
@@ -177,6 +177,6 @@ app.use((error,req,res,_next) => {
 
 app.listen(env.PORT,() => {
 	console.log(
-		`Gabz Meals API running on http://localhost:${env.PORT}`
+		`Wosa API running on http://localhost:${env.PORT}`
 	);
 });

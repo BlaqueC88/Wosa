@@ -186,7 +186,7 @@ export const useCartStore = create<CartStore>()(
       },
     }),
     {
-      name: "gabz-meals-cart",
+      name: "wosa-cart",
 
       /*
         Explicitly use browser localStorage.

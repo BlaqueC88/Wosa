@@ -62,12 +62,12 @@ export default function SignUpPage() {
 			<div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-sm lg:grid-cols-2">
 				<section className="hidden bg-primary p-10 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
 					<Link to="/" className="text-xl font-black tracking-tight">
-						GABZ MEALS
+						WOSA
 					</Link>
 
 					<div>
 						<p className="text-sm font-semibold uppercase tracking-widest text-primary-foreground/80">
-							Join Gabz Meals
+							Join Wosa
 						</p>
 
 						<h1 className="mt-3 text-4xl font-black leading-tight">
@@ -96,7 +96,7 @@ export default function SignUpPage() {
 						</h1>
 
 						<p className="mt-2 text-sm leading-6 text-muted-foreground">
-							Enter your details to create your Gabz Meals account.
+							Enter your details to create your Wosa account.
 						</p>
 
 						{error? (

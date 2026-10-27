@@ -63,7 +63,7 @@ export default function SignInPage() {
 		<main className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-10">
 				<Link to="/" className="text-xl font-black tracking-tight">
-					GABZ MEALS
+					WOSA
 				</Link>
 
 				<p className="mt-8 text-sm font-semibold uppercase tracking-widest text-primary">
@@ -169,7 +169,7 @@ export default function SignInPage() {
 				</Form>
 
 				<p className="mt-6 text-center text-sm text-muted-foreground">
-					New to Gabz Meals?{" "}
+					New to Wosa?{" "}
 					<Link
 						to="/auth/signup"
 						className="font-semibold text-primary hover:underline"
