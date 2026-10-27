@@ -40,7 +40,7 @@ const categories: Category[] = [
   {
     name: "Surf & Turf",
     href: "/surfnturf",
-    image: "/images/surfnturf/Surf_&_Turf.jpg",
+    image: "/images/surfnturf/Surf_and_Turf.jpg",
     description: "The best of land and sea on one plate.",
   },
   {

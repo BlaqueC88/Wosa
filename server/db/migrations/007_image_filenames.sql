@@ -1,0 +1,14 @@
+-- Rename image files: remove & and commas, fix typos
+UPDATE menu_items SET image_url = '/images/steaks/Mushroomed_Sirloin_and_Chips.jpg' WHERE image_url = '/images/steaks/Mushroomed_Sirloin_&_Chips.jpg';
+UPDATE menu_items SET image_url = '/images/steaks/Steak_and_Mushroom_Sauce.jpg' WHERE image_url = '/images/steaks/Steak_&_Mushroom_Source.jpg';
+UPDATE menu_items SET image_url = '/images/steaks/Tomahawk_Chimichurri_and_Hasselback_Potatoes.jpeg' WHERE image_url = '/images/steaks/omahawk_chimichurri_and_hassleback_potatoes.jpeg';
+UPDATE menu_items SET image_url = '/images/seafood/Garlic_Butter_Salmon_and_Shrimp_with_Asparagus.jpg' WHERE image_url = '/images/seafood/Garlic_Butter_Salmon_&_Shrimp_with_Asparagus.jpg';
+UPDATE menu_items SET image_url = '/images/seafood/Red_Snapper_Shrimp_and_Grits_with_Cajun_Cream_Sauce.jpeg' WHERE image_url = '/images/seafood/Red_Snapper,_Shrimp_&_Grits_with_a_Cajun_Cream_Sauce.jpeg';
+UPDATE menu_items SET image_url = '/images/seafood/Scallop_and_Lobster_Soup.jpg' WHERE image_url = '/images/seafood/Scallop_&_Lobster_Soup.jpg';
+UPDATE menu_items SET image_url = '/images/seafood/Hake_and_Spinach.jpg' WHERE image_url = '/images/seafood/Hake_&_Spinach.jpg';
+UPDATE menu_items SET image_url = '/images/surfnturf/Steak_and_Scallops_with_Baked_Potato.jpg' WHERE image_url = '/images/surfnturf/Steak_&_Scallops_with_Baked_Potato.jpg';
+UPDATE menu_items SET image_url = '/images/surfnturf/Steak_and_Shrimp.jpg' WHERE image_url = '/images/surfnturf/Steak_&_Shrimp.jpg';
+UPDATE menu_items SET image_url = '/images/surfnturf/Steak_and_Shrimp_on_Fusilli_Pasta.jpg' WHERE image_url = '/images/surfnturf/Steak_&_Shripm_on_Fuslli_Pasta.jpg';
+UPDATE menu_items SET image_url = '/images/surfnturf/Surf_and_Turf_Alfredo.jpg' WHERE image_url = '/images/surfnturf/Surf_&_Turf_Alfredo.jpg';
+UPDATE menu_items SET image_url = '/images/surfnturf/Surf_and_Turf.jpg' WHERE image_url = '/images/surfnturf/Surf_&_Turf.jpg';
+UPDATE menu_items SET image_url = '/images/salads/Egg_and_Bacon_Salad.jpg' WHERE image_url = '/images/salads/Egg_&_Bacon_Salad.jpg';

@@ -19,7 +19,7 @@ export const categoryInfo: Record<MenuCategory,CategoryInfo>={
 		heading: "Pick your cut",
 		description:
 			"Choose from premium cuts, flame-grilled to your preference and made complete with your favourite side and sauce.",
-		heroImage: "/images/steaks/Steak_&_Mushroom_Source.jpg",
+		heroImage: "/images/steaks/Steak_and_Mushroom_Sauce.jpg",
 		heroAlt: "Flame-grilled steak with mushroom sauce",
 		highlights: ["Cooked to order","Choice of sides","Sauces available"],
 	},
@@ -52,7 +52,7 @@ export const categoryInfo: Record<MenuCategory,CategoryInfo>={
 		heading: "Land meets sea",
 		description:
 			"Flame-grilled steak paired with prawns, scallops and rich sauces.",
-		heroImage: "/images/surfnturf/Surf_&_Turf.jpg",
+		heroImage: "/images/surfnturf/Surf_and_Turf.jpg",
 		heroAlt: "Surf and turf platter",
 		highlights: ["Steak and seafood","Rich sauces","Made to share"],
 	},
