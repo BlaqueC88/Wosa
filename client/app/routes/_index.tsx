@@ -1,3 +1,4 @@
+import { formatZAR } from "~/lib/format";
 import { Link } from "react-router";
 
 import {
@@ -363,10 +364,3 @@ function Feature({
   );
 }
 
-function formatZAR(priceCents: number) {
-  return new Intl.NumberFormat("en-ZA", {
-    style: "currency",
-    currency: "ZAR",
-    minimumFractionDigits: 2,
-  }).format(priceCents / 100);
-}

@@ -1,3 +1,4 @@
+import { formatZAR } from "~/lib/format";
 import { Link,Navigate } from "react-router";
 import { Heart,ShoppingBag,ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
@@ -133,10 +134,3 @@ export default function WishlistPage() {
 	);
 }
 
-function formatZAR(priceCents: number) {
-	return new Intl.NumberFormat("en-ZA",{
-		style: "currency",
-		currency: "ZAR",
-		minimumFractionDigits: 2,
-	}).format(priceCents/100);
-}

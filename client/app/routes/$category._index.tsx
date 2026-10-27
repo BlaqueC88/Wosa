@@ -1,3 +1,4 @@
+import { formatZAR } from "~/lib/format";
 import { Link,useParams } from "react-router";
 import { ArrowRight,Heart,Star } from "lucide-react";
 
@@ -229,10 +230,3 @@ function CategoryMenuPage({ category }: { category: MenuCategory }) {
 	);
 }
 
-function formatZAR(priceCents: number) {
-	return new Intl.NumberFormat("en-ZA",{
-		style: "currency",
-		currency: "ZAR",
-		minimumFractionDigits: 2,
-	}).format(priceCents/100);
-}

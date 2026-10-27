@@ -1,3 +1,4 @@
+import { formatZAR } from "~/lib/format";
 import { useEffect,useMemo,useState } from "react";
 import { Link,useParams } from "react-router";
 import { categoryInfo } from "~/lib/categories";
@@ -588,13 +589,6 @@ function SteakDetailSkeleton() {
 	);
 }
 
-function formatZAR(priceCents: number) {
-	return new Intl.NumberFormat("en-ZA",{
-		style: "currency",
-		currency: "ZAR",
-		minimumFractionDigits: 2,
-	}).format(priceCents/100);
-}
 
 function formatCategory(category: string) {
 	const labels: Record<string,string>={
