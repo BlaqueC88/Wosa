@@ -42,7 +42,7 @@ I built it as a portfolio project to practise the parts of web development that 
 You need Node.js 20 or newer and PostgreSQL.
 
 ```bash
-git clone <repository-url> wosa
+git clone https://github.com/BlaqueC88/Wosa.git wosa
 cd wosa
 
 # 1. Database
