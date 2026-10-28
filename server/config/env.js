@@ -28,6 +28,17 @@ const schema=Joi.object({
 
 	BCRYPT_ROUNDS: Joi.number().integer().min(4).max(15).default(12),
 	DELIVERY_FEE_CENTS: Joi.number().integer().min(0).default(3500),
+
+	PUBLIC_API_URL: Joi.string()
+		.uri({ scheme: ["http","https"] })
+		.default("http://localhost:5000"),
+
+	PAYFAST_SANDBOX: Joi.boolean().default(true),
+	PAYFAST_MERCHANT_ID: Joi.string().allow("").default(""),
+	PAYFAST_MERCHANT_KEY: Joi.string().allow("").default(""),
+	PAYFAST_PASSPHRASE: Joi.string().allow("").default(""),
+	PAYFAST_CHECK_SOURCE: Joi.boolean().default(true),
+	PAYFAST_CONFIRM_WITH_PAYFAST: Joi.boolean().default(true),
 }).unknown(true);
 
 const { error,value }=schema.validate(process.env,{
@@ -39,6 +50,15 @@ if(error) {
 		`Invalid environment configuration: ${error.details
 			.map((detail) => detail.message)
 			.join(", ")}`
+	);
+}
+
+if(
+	value.NODE_ENV==="production"&&
+	(!value.PAYFAST_CHECK_SOURCE||!value.PAYFAST_CONFIRM_WITH_PAYFAST)
+) {
+	throw new Error(
+		"In production, PAYFAST_CHECK_SOURCE and PAYFAST_CONFIRM_WITH_PAYFAST must stay true."
 	);
 }
 
