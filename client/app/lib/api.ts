@@ -346,4 +346,34 @@ export async function updateOrderStatusRequest(
 	return response.order;
 }
 
+export type PayfastCheckout={
+	url: string;
+	fields: { name: string; value: string }[];
+};
+
+export async function startPaymentRequest(
+	orderId: string
+): Promise<PayfastCheckout> {
+	return request<PayfastCheckout>(
+		`/api/orders/${encodeURIComponent(orderId)}/pay`,
+		{ method: "POST" }
+	);
+}
+
+export type OrderListItem={
+	id: string;
+	orderNumber: number;
+	status: string;
+	fulfilmentType: FulfilmentType;
+	totalCents: number;
+	createdAt: string;
+	items: { name: string; quantity: number }[];
+};
+
+export async function getMyOrders(): Promise<OrderListItem[]> {
+	const response=await request<{ data: OrderListItem[] }>("/api/orders");
+
+	return response.data;
+}
+
 export { request };

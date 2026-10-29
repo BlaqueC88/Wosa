@@ -1,48 +1,69 @@
 import { useEffect,useState } from "react";
-import { Link,Navigate,useParams } from "react-router";
+import { Link,Navigate,useParams,useSearchParams } from "react-router";
 import { CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
-import { getOrderRequest,type OrderDetail } from "~/lib/api";
-import { formatZAR } from "~/lib/format";
+import { Button } from "~/components/ui/button";
+import {
+	getOrderRequest,
+	startPaymentRequest,
+	type OrderDetail,
+} from "~/lib/api";
+import { formatZAR,orderStatusLabels } from "~/lib/format";
+import { submitPayfastForm } from "~/lib/payfast";
 import { useAuthStore } from "~/store/authStore";
 
-const statusLabels: Record<string,string>={
-	pending_payment: "Waiting for payment",
-	paid: "Paid",
-	preparing: "Being prepared",
-	out_for_delivery: "Out for delivery",
-	ready_for_collection: "Ready for collection",
-	completed: "Completed",
-	cancelled: "Cancelled",
-};
+const MAX_POLLS=20;
+const POLL_EVERY_MS=3000;
 
 export default function OrderPage() {
 	const { orderId }=useParams();
 
 	const user=useAuthStore((state) => state.user);
 	const isAuthLoading=useAuthStore((state) => state.isLoading);
-	const userId=user?.id;
+
+	if(isAuthLoading) {
+		return <PageMessage>Loading your order...</PageMessage>;
+	}
+
+	if(!user) {
+		return (
+			<Navigate
+				to="/auth/signin"
+				replace
+				state={{ from: { pathname: `/orders/${orderId}` } }}
+			/>
+		);
+	}
+
+	if(!orderId) {
+		return <PageMessage>We could not find that order.</PageMessage>;
+	}
+
+	return <OrderView key={orderId} orderId={orderId} />;
+}
+
+function OrderView({ orderId }: { orderId: string }) {
+	const [searchParams]=useSearchParams();
+	const paymentParam=searchParams.get("payment");
 
 	const [order,setOrder]=useState<OrderDetail|null>(null);
 	const [error,setError]=useState<string|null>(null);
 	const [isLoading,setIsLoading]=useState(true);
+	const [reloadKey,setReloadKey]=useState(0);
+	const [pollCount,setPollCount]=useState(0);
+	const [isPaying,setIsPaying]=useState(false);
 
 	useEffect(() => {
-		if(!orderId||!userId) {
-			return;
-		}
-
 		let isCurrent=true;
 
-		async function loadOrder(id: string) {
+		async function loadOrder() {
 			try {
-				setIsLoading(true);
-				setError(null);
-
-				const data=await getOrderRequest(id);
+				const data=await getOrderRequest(orderId);
 
 				if(isCurrent) {
 					setOrder(data);
+					setError(null);
 				}
 			} catch(error) {
 				if(isCurrent) {
@@ -59,32 +80,60 @@ export default function OrderPage() {
 			}
 		}
 
-		void loadOrder(orderId);
+		void loadOrder();
 
 		return () => {
 			isCurrent=false;
 		};
-	},[orderId,userId]);
+	},[orderId,reloadKey]);
 
-	if(isAuthLoading||(user&&isLoading)) {
-		return (
-			<main className="mx-auto max-w-3xl px-4 py-10">
-				<p className="text-sm text-muted-foreground">Loading your order...</p>
-			</main>
-		);
+	// After coming back from Payfast, keep checking until the payment is confirmed.
+	const isConfirming=
+		paymentParam==="return"&&
+		order?.status==="pending_payment"&&
+		pollCount<MAX_POLLS;
+
+	useEffect(() => {
+		if(!isConfirming) {
+			return;
+		}
+
+		const timer=setTimeout(() => {
+			setPollCount((count) => count+1);
+			setReloadKey((key) => key+1);
+		},POLL_EVERY_MS);
+
+		return () => clearTimeout(timer);
+	},[isConfirming,pollCount]);
+
+	async function handlePay() {
+		if(!order) {
+			return;
+		}
+
+		try {
+			setIsPaying(true);
+
+			const checkout=await startPaymentRequest(order.id);
+
+			submitPayfastForm(checkout.url,checkout.fields);
+
+			setTimeout(() => setIsPaying(false),4000);
+		} catch(error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					:"Unable to start the payment."
+			);
+			setIsPaying(false);
+		}
 	}
 
-	if(!user) {
-		return (
-			<Navigate
-				to="/auth/signin"
-				replace
-				state={{ from: { pathname: `/orders/${orderId}` } }}
-			/>
-		);
+	if(isLoading) {
+		return <PageMessage>Loading your order...</PageMessage>;
 	}
 
-	if(error||!order) {
+	if(!order) {
 		return (
 			<main className="mx-auto max-w-xl px-4 py-16 text-center">
 				<h1 className="text-2xl font-bold">We could not find that order</h1>
@@ -94,13 +143,33 @@ export default function OrderPage() {
 				</p>
 
 				<Link
-					to="/"
+					to="/orders"
 					className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
 				>
-					Back to home
+					See my orders
 				</Link>
 			</main>
 		);
+	}
+
+	let banner: { warning: boolean; text: string }|null=null;
+
+	if(paymentParam==="cancelled"&&order.status==="pending_payment") {
+		banner={
+			warning: true,
+			text: "The payment was cancelled. Your order is saved, and you can pay whenever you are ready.",
+		};
+	} else if(paymentParam==="return") {
+		if(order.status!=="pending_payment"&&order.status!=="cancelled") {
+			banner={ warning: false,text: "Payment received. Thank you!" };
+		} else if(order.status==="pending_payment") {
+			banner={
+				warning: false,
+				text: isConfirming
+					? "Confirming your payment. This usually takes a few seconds..."
+					:"We have not received confirmation from the payment provider yet. Please refresh this page in a minute.",
+			};
+		}
 	}
 
 	return (
@@ -110,7 +179,7 @@ export default function OrderPage() {
 
 				<div>
 					<p className="text-sm font-semibold uppercase tracking-widest text-primary">
-						Order received
+						Your order
 					</p>
 
 					<h1 className="mt-1 text-3xl font-bold tracking-tight">
@@ -122,12 +191,48 @@ export default function OrderPage() {
 					</p>
 
 					<span className="mt-3 inline-block rounded-full border border-border px-3 py-1 text-sm font-medium">
-						{statusLabels[order.status]??order.status}
+						{orderStatusLabels[order.status]??order.status}
 					</span>
 				</div>
 			</div>
 
-			<section className="mt-8 rounded-2xl border border-border bg-card p-6">
+			{banner? (
+				<div
+					role="status"
+					className={[
+						"mt-6 rounded-lg border px-4 py-3 text-sm",
+						banner.warning
+							? "border-destructive/30 bg-destructive/10 text-destructive"
+							:"border-primary/20 bg-primary/10 text-primary",
+					].join(" ")}
+				>
+					{banner.text}
+				</div>
+			):null}
+
+			{order.status==="pending_payment"? (
+				<section className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-6">
+					<h2 className="font-bold">Complete your payment</h2>
+
+					<p className="mt-1 text-sm text-muted-foreground">
+						You will be taken to Payfast&apos;s secure page to pay{" "}
+						{formatZAR(order.totalCents)}.
+					</p>
+
+					<Button
+						size="lg"
+						className="mt-4 w-full"
+						disabled={isPaying}
+						onClick={() => void handlePay()}
+					>
+						{isPaying
+							? "Opening Payfast..."
+							:`Pay ${formatZAR(order.totalCents)} now`}
+					</Button>
+				</section>
+			):null}
+
+			<section className="mt-6 rounded-2xl border border-border bg-card p-6">
 				<h2 className="font-bold">Your dishes</h2>
 
 				<ul className="mt-4 space-y-4">
@@ -188,7 +293,9 @@ export default function OrderPage() {
 
 			<section className="mt-6 rounded-2xl border border-border bg-card p-6 text-sm">
 				<h2 className="font-bold">
-					{order.fulfilmentType==="delivery"? "Delivery details":"Collection"}
+					{order.fulfilmentType==="delivery"
+						? "Delivery details"
+						:"Collection"}
 				</h2>
 
 				<p className="mt-3">
@@ -213,12 +320,29 @@ export default function OrderPage() {
 				):null}
 			</section>
 
-			<Link
-				to="/"
-				className="mt-8 inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
-			>
-				Back to the menu
-			</Link>
+			<div className="mt-8 flex flex-wrap gap-3">
+				<Link
+					to="/orders"
+					className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+				>
+					All my orders
+				</Link>
+
+				<Link
+					to="/"
+					className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+				>
+					Back to the menu
+				</Link>
+			</div>
+		</main>
+	);
+}
+
+function PageMessage({ children }: { children: React.ReactNode }) {
+	return (
+		<main className="mx-auto max-w-3xl px-4 py-10">
+			<p className="text-sm text-muted-foreground">{children}</p>
 		</main>
 	);
 }

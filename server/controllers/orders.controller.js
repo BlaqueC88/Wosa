@@ -328,3 +328,59 @@ export async function getOrder(req,res,next) {
 		return next(error);
 	}
 }
+
+export async function listMyOrders(req,res,next) {
+	try {
+		const ordersResult=await pool.query(
+			`
+        SELECT id, order_number, status, fulfilment_type, total_cents, created_at
+        FROM orders
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 50
+      `,
+			[req.user.id]
+		);
+
+		const orderIds=ordersResult.rows.map((row) => row.id);
+
+		const itemsResult=await pool.query(
+			`
+        SELECT order_id, item_name, quantity
+        FROM order_items
+        WHERE order_id = ANY($1::uuid[])
+        ORDER BY item_name
+      `,
+			[orderIds]
+		);
+
+		const itemsByOrder=new Map();
+
+		for(const row of itemsResult.rows) {
+			if(!itemsByOrder.has(row.order_id)) {
+				itemsByOrder.set(row.order_id,[]);
+			}
+
+			itemsByOrder.get(row.order_id).push({
+				name: row.item_name,
+				quantity: row.quantity,
+			});
+		}
+
+		res.set("Cache-Control","no-store");
+
+		return res.status(200).json({
+			data: ordersResult.rows.map((row) => ({
+				id: row.id,
+				orderNumber: row.order_number,
+				status: row.status,
+				fulfilmentType: row.fulfilment_type,
+				totalCents: row.total_cents,
+				createdAt: row.created_at,
+				items: itemsByOrder.get(row.id)??[],
+			})),
+		});
+	} catch(error) {
+		return next(error);
+	}
+}

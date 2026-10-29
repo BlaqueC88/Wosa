@@ -12,8 +12,8 @@ I built it as a portfolio project to practise the parts of web development that 
 - **Wishlist** saved per account, so it follows the customer and never leaks between users
 - **Accounts** with sign-up, sign-in and sign-out using secure server-side sessions
 - **Checkout** for delivery (with a delivery fee) or collection
-- **Orders** with a confirmation page for each customer
-- **Admin dashboard** that lists incoming orders and moves them through paid, preparing, out for delivery or ready for collection, and completed
+- **Orders** with a confirmation page, a "My orders" list and a Pay now button (Payfast sandbox)
+- **Admin dashboard** that lists incoming orders and moves paid orders through preparing, out for delivery or ready for collection, and completed
 
 ## Tech stack
 
@@ -22,6 +22,7 @@ I built it as a portfolio project to practise the parts of web development that 
 | Frontend | React 19, React Router (framework mode), TypeScript, Zustand, Tailwind CSS, shadcn/ui, Sonner |
 | Backend | Node.js, Express 5, express-session, Joi, bcryptjs, helmet |
 | Database | PostgreSQL (`pg`), SQL migrations |
+| Payments | Payfast sandbox (signed checkout, verified notifications) |
 
 ## Design decisions
 
@@ -84,13 +85,23 @@ server/middleware/       authentication, roles, body validation
 server/db/migrations/    numbered SQL migrations
 ```
 
+## Payments (Payfast sandbox)
+
+Customers pay through Payfast. The server builds a signed payment form for the customer's own unpaid order and sends them to Payfast. Payfast then notifies the server, and only a verified notification can mark an order as paid. Admins cannot mark an order paid by hand.
+
+The notification handler checks the signature (made with a secret passphrase), the merchant, and that the amount matches the order, and it asks Payfast to confirm the notification. Receiving the same notification twice is safe.
+
+**What was tested.** Against the real Payfast sandbox, the signed checkout was accepted and a test payment completed, and Payfast's notification reached the server through a public tunnel and passed the signature and merchant checks. The rest of the handler (marking the order paid, safe repeats, rejecting forged or tampered notifications) is covered by a simulator that sends correctly signed fake notifications: `node db/simulate-payfast-itn.js latest` (add `--bad-signature` or `--tamper-amount` to watch forged ones get rejected).
+
+**Before going live:** a verified Payfast merchant account, a deployed server with a public HTTPS address, and a check of notification sender addresses against Payfast's current published list. That sender check is switched off in the sandbox because the sandbox notification came from an address my lookup did not list. The server refuses to start in production with it off.
+
 ## Not done yet
 
-- Online payments (Payfast or Paystack). Orders currently start as "waiting for payment", and an admin marks them as paid by hand.
 - Editing menu items from the admin dashboard
 - Guest checkout
 - Rate limiting on the sign-in routes
 - Automated tests
+- Live deployment
 
 ## Author
 

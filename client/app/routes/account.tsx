@@ -42,6 +42,12 @@ export default function AccountPage() {
 
 				<div className="mt-8 flex flex-wrap gap-3">
 					<Link
+						to="/orders"
+						className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+					>
+						My orders
+					</Link>
+					<Link
 						to="/wishlist"
 						className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
 					>

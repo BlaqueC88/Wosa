@@ -7,38 +7,51 @@ import {
 import { pool } from "./pool.js";
 
 const args=process.argv.slice(2);
-const [orderId,requestedStatus="COMPLETE"]=args.filter(
+const [target,requestedStatus="COMPLETE"]=args.filter(
 	(arg) => !arg.startsWith("--")
 );
 const tamperAmount=args.includes("--tamper-amount");
 const badSignature=args.includes("--bad-signature");
 
-if(!orderId) {
+if(!target) {
 	console.error(
-		"Usage: node db/simulate-payfast-itn.js ORDER_ID [COMPLETE|CANCELLED|FAILED] [--tamper-amount] [--bad-signature]"
+		"Usage: node db/simulate-payfast-itn.js <ORDER_ID|latest> [COMPLETE|CANCELLED|FAILED] [--tamper-amount] [--bad-signature]"
 	);
 	process.exit(1);
 }
 
 try {
-	const result=await pool.query(
-		"SELECT order_number, total_cents FROM orders WHERE id = $1",
-		[orderId]
-	);
+	const result=
+		target==="latest"
+			? await pool.query(`
+          SELECT id, order_number, total_cents
+          FROM orders
+          WHERE status = 'pending_payment'
+          ORDER BY created_at DESC
+          LIMIT 1
+        `)
+			:await pool.query(
+				"SELECT id, order_number, total_cents FROM orders WHERE id::text = $1",
+				[target]
+			);
 
 	const order=result.rows[0];
 
 	if(!order) {
-		console.error("No order with that id.");
+		console.error(
+			"No matching order. Use an id from `node db/list-orders.js`, or the word latest for the newest unpaid order."
+		);
 		process.exit(1);
 	}
+
+	console.log(`Simulating ${requestedStatus} for order #${order.order_number}`);
 
 	const gross=tamperAmount? "1.00":formatAmount(order.total_cents);
 	const fee=(Number(gross)*0.032+2).toFixed(2);
 	const net=(Number(gross)-Number(fee)).toFixed(2);
 
 	const entries=[
-		["m_payment_id",orderId],
+		["m_payment_id",order.id],
 		["pf_payment_id",String(9000000+order.order_number)],
 		["payment_status",requestedStatus],
 		["item_name",`Wosa order #${order.order_number}`],

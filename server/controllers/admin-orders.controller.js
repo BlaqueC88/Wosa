@@ -7,7 +7,7 @@ const orderIdSchema=Joi.string().guid().required();
 function allowedNextStatuses(status,fulfilmentType) {
 	switch(status) {
 		case "pending_payment":
-			return ["paid","cancelled"];
+			return ["cancelled"];
 		case "paid":
 			return ["preparing","cancelled"];
 		case "preparing":

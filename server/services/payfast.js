@@ -91,28 +91,51 @@ export function isValidSignature(body) {
 	return a.length===b.length&&crypto.timingSafeEqual(a,b);
 }
 
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(() => resolve([]), ms)),
+  ]);
+}
+
+let cachedHosts = { addresses: new Set(), expires: 0 };
+
+export async function getPayfastAddresses() {
+  if (Date.now() < cachedHosts.expires && cachedHosts.addresses.size > 0) {
+    return cachedHosts.addresses;
+  }
+
+  const lookups = await Promise.all(
+    ITN_HOSTS.map((hostname) =>
+      withTimeout(
+        dns.lookup(hostname, { all: true }).catch(() => []),
+        5000
+      )
+    )
+  );
+
+  const addresses = new Set(lookups.flat().map((result) => result.address));
+
+  if (addresses.size > 0) {
+    cachedHosts = { addresses, expires: Date.now() + 10 * 60 * 1000 };
+  }
+
+  return addresses;
+}
+
 export async function isFromPayfast(ip) {
-	const allowed=new Set();
+  const addresses = await getPayfastAddresses();
 
-	for(const hostname of ITN_HOSTS) {
-		try {
-			const results=await dns.lookup(hostname,{ all: true });
-
-			results.forEach((result) => allowed.add(result.address));
-		} catch {
-			// A host that does not resolve simply adds nothing.
-		}
-	}
-
-	return allowed.has(String(ip??"").replace(/^::ffff:/,""));
+  return addresses.has(String(ip ?? "").replace(/^::ffff:/, ""));
 }
 
 export async function confirmWithPayfast(body) {
-	const response=await fetch(VALIDATE_URL,{
-		method: "POST",
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		body: buildParamString(Object.entries(body),{ skipBlank: false }),
-	});
+  const response = await fetch(VALIDATE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: buildParamString(Object.entries(body), { skipBlank: false }),
+    signal: AbortSignal.timeout(10000),
+  });
 
-	return (await response.text()).trim()==="VALID";
+  return (await response.text()).trim() === "VALID";
 }

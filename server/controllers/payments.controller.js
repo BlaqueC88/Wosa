@@ -5,6 +5,7 @@ import { pool } from "../db/pool.js";
 import {
 	buildCheckout,
 	confirmWithPayfast,
+	getPayfastAddresses,
 	isFromPayfast,
 	isValidSignature,
 } from "../services/payfast.js";
@@ -104,7 +105,14 @@ export async function handlePayfastNotification(req,res,next) {
 		}
 
 		if(env.PAYFAST_CHECK_SOURCE&&!(await isFromPayfast(req.ip))) {
-			return reject(res,"sender is not Payfast");
+			const known=await getPayfastAddresses();
+
+			return reject(
+				res,
+				`sender is not Payfast (ip ${req.ip}, forwarded ${req.headers["x-forwarded-for"]??"none"
+				}, cf ${req.headers["cf-connecting-ip"]??"none"}, known: ${[...known].join(" ")||"none"
+				})`
+			);
 		}
 
 		if(
