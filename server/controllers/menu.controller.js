@@ -239,3 +239,47 @@ export async function getMenuItemByCategoryAndSlug(req,res,next) {
 		return next(error);
 	}
 }
+/*
+  GET /api/menu/search?q=ribeye
+*/
+export async function searchMenuItems(req, res, next) {
+  try {
+    const text =
+      typeof req.query.q === "string" ? req.query.q.trim().slice(0, 60) : "";
+
+    if (text.length < 2) {
+      return res.status(200).json({ data: [] });
+    }
+
+    // Escape the characters that have a special meaning in LIKE patterns.
+    const pattern = `%${text.replace(/[\\%_]/g, "\\$&")}%`;
+
+    const result = await pool.query(
+      `
+        SELECT
+          id,
+          slug,
+          name,
+          description,
+          category,
+          price_cents,
+          image_url,
+          available,
+          featured,
+          prep_time_minutes
+        FROM menu_items
+        WHERE available = TRUE
+          AND (name ILIKE $1 OR description ILIKE $1)
+        ORDER BY (name ILIKE $1) DESC, featured DESC, name ASC
+        LIMIT 30
+      `,
+      [pattern]
+    );
+
+    return res.status(200).json({
+      data: result.rows.map(serializeMenuItem),
+    });
+  } catch (error) {
+    return next(error);
+  }
+}

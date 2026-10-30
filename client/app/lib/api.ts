@@ -377,3 +377,10 @@ export async function getMyOrders(): Promise<OrderListItem[]> {
 }
 
 export { request };
+export async function searchMenuItems(query: string): Promise<MenuItem[]> {
+  const response = await request<MenuListResponse>(
+    `/api/menu/search?q=${encodeURIComponent(query)}`
+  );
+
+  return response.data;
+}

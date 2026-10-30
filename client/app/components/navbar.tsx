@@ -1,4 +1,5 @@
-import { Link, NavLink } from "react-router";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 
 import { useCartStore } from "~/store/cartStore";
@@ -6,9 +7,8 @@ import { useWishlistStore } from "~/store/wishlistStore";
 import { useAuthStore } from "~/store/authStore";
 
 import { Button } from "./ui/button";
-import { ButtonGroup, ButtonGroupText } from "./ui/button-group";
+import { ButtonGroup } from "./ui/button-group";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 
 export function Navbar() {
@@ -18,14 +18,14 @@ export function Navbar() {
 
   const wishlistCount = useWishlistStore((state) => state.items.length);
 
-	const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
-	const accountPath =
-	  user?.role === "admin"
-	    ? "/admin"
-	    : user
-	      ? "/account"
-	      : "/auth/signin";
+  const accountPath =
+    user?.role === "admin"
+      ? "/admin"
+      : user
+        ? "/account"
+        : "/auth/signin";
 
   return (
     <nav className="min-w-screen border-b border-border bg-background px-4 py-5 sm:px-6 lg:px-8">
@@ -40,18 +40,7 @@ export function Navbar() {
           </NavLink>
 
           <div className="hidden w-full max-w-md md:block">
-            <ButtonGroup className="w-full">
-              <Input
-                id="site-search"
-                type="search"
-                placeholder="Search meals..."
-                aria-label="Search meals"
-              />
-
-              <ButtonGroupText render={<Label htmlFor="site-search" />}>
-                <Search className="size-4" />
-              </ButtonGroupText>
-            </ButtonGroup>
+            <SearchForm id="site-search" />
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -72,35 +61,22 @@ export function Navbar() {
             </NavbarIconLink>
 
             <NavbarIconLink
-						  to={accountPath}
-						  label={
-						    user?.role === "admin"
-						      ? "Open admin dashboard"
-						      : user
-						        ? "Open your account"
-						        : "Sign in or create an account"
-						  }
-						>
-						  <User className="size-5" />
-						</NavbarIconLink>
+              to={accountPath}
+              label={
+                user?.role === "admin"
+                  ? "Open admin dashboard"
+                  : user
+                    ? "Open your account"
+                    : "Sign in or create an account"
+              }
+            >
+              <User className="size-5" />
+            </NavbarIconLink>
           </div>
         </div>
 
         <div className="mt-4 md:hidden">
-          <ButtonGroup className="w-full">
-            <Input
-              id="mobile-site-search"
-              type="search"
-              placeholder="Search meals..."
-              aria-label="Search meals"
-            />
-
-            <ButtonGroupText
-              render={<Label htmlFor="mobile-site-search" />}
-            >
-              <Search className="size-4" />
-            </ButtonGroupText>
-          </ButtonGroup>
+          <SearchForm id="mobile-site-search" />
         </div>
 
         <Separator className="my-5" />
@@ -126,6 +102,43 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+  );
+}
+
+function SearchForm({ id }: { id: string }) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmed = query.trim();
+
+    if (trimmed.length < 2) {
+      return;
+    }
+
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+  }
+
+  return (
+    <form onSubmit={handleSubmit} role="search" className="w-full">
+      <ButtonGroup className="w-full">
+        <Input
+          id={id}
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search meals..."
+          aria-label="Search meals"
+          maxLength={60}
+        />
+
+        <Button type="submit" variant="outline" size="icon" aria-label="Search">
+          <Search className="size-4" />
+        </Button>
+      </ButtonGroup>
+    </form>
   );
 }
 

@@ -4,9 +4,20 @@ Wosa (Zulu for "grill") is a full-stack food ordering and delivery app. Customer
 
 I built it as a portfolio project to practise the parts of web development that matter most in real products: authentication, data modelling, and never trusting the browser.
 
+## Screenshots
+
+<p>
+  <img src="docs/menu.jpg" width="180" alt="Menu">
+  <img src="docs/dish.jpg" width="180" alt="Dish options">
+  <img src="docs/checkout.jpg" width="180" alt="Checkout">
+  <img src="docs/order.jpg" width="180" alt="Order page">
+  <img src="docs/admin.jpg" width="180" alt="Admin orders">
+</p>
+
 ## Features
 
 - **Menu** across six categories (steaks, chicken, fish and seafood, surf and turf, salads, desserts)
+- **Search** by dish name or description
 - **Per-dish options** such as doneness, sides, sauces, dressings and spice level, stored in the database so each dish only offers what makes sense for it
 - **Cart** that remembers its contents between visits
 - **Wishlist** saved per account, so it follows the customer and never leaks between users
